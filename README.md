@@ -1,4 +1,4 @@
-# 契約書動的生成システム (Contract Generation System) 📝
+# 契約書動的生成システム (Contract Generation System) 
 
 ## 概要
 
