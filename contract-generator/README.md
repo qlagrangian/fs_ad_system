@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 契約書動的生成システム (Contract Generation System) 📝
 
-## Getting Started
+## 概要
 
-First, run the development server:
+本プロジェクトは、複雑な階層構造を持つ契約書を、Web UI上で動的に生成するためのフロントエンド・プロトタイプです。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+手作業による契約書作成は、条項の選択ミス、変数（依頼者名、日付など）の記入漏れ、条番号のズレといったコンプライアンス上のリスクを常に内包しています。このシステムは、**契約書の構造とロジックをデータ（JSON）として一元管理**し、ユーザーがUI上でパラメータを選択・入力するだけで、**論理的に破綻のない正確な契約書**を生成することを目指します。
+
+## 主な機能
+
+- **動的なUI生成**: 契約書テンプレートのJSONスキーマを読み込み、グローバル変数の入力フォームや、条項選択のチェックボックスを自動的にレンダリングします。
+    
+- **階層構造の可視化**: 契約書の「条・項・号」といった入れ子構造を、インデントを用いて直感的に分かりやすく画面に表示します。
+    
+- **リアルタイムプレビュー**: UI上で入力した内容や選択した条項が、即座にプレビューエリアに反映されます。
+    
+- **堅牢なスキーマ駆動開発**: システムの振る舞いは全て `lib/mock-contract.ts` に定義されたスキーマに基づいています。機能追加や変更は、まずこのスキーマを更新することから始めます。
+    
+
+## 環境構築と起動方法
+
+このプロジェクトをローカル環境で起動するための手順は以下の通りです。
+
+### 1. 前提条件
+
+- [Node.js](https://nodejs.org/ja "null") (v18.17.0 以上を推奨)
+    
+- [npm](https://www.npmjs.com/ "null") または [yarn](https://yarnpkg.com/ "null") などのパッケージマネージャ
+    
+
+### 2. リポジトリのクローン
+
+まず、このリポジトリを任意のディレクトリにクローンします。
+
+```
+git clone https://github.com/[your-repository-url].git
+cd contract-generator
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. 依存パッケージのインストール
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+プロジェクトに必要なライブラリをインストールします。
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+npm install
+# または
+# yarn install
+```
 
-## Learn More
+### 4. shadcn/ui のセットアップ
 
-To learn more about Next.js, take a look at the following resources:
+このプロジェクトはUIコンポーネントに `shadcn/ui` を利用しています。以下のコマンドを実行して、プロジェクトに必要なコンポーネントをセットアップしてください。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+まず、`shadcn/ui` の初期設定を行います。（対話形式で設定を聞かれますが、基本的にデフォルトのままで問題ありません）
+ただし、ここのコマンドで`shadcn-ui`はダメかもしれないので、エラー時は`shadcn@latest`を試してください。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+npx shadcn-ui@latest init
+```
 
-## Deploy on Vercel
+次に、プロトタイプで使用しているUIコンポーネントをインストールします。
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+npx shadcn-ui@latest add card button input label checkbox separator
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 5. 開発サーバーの起動
+
+全ての準備が整ったら、開発サーバーを起動します。
+
+```
+npm run dev
+```
+
+起動後、ターミナルに表示されるURL (通常は `http://localhost:3000`) にブラウザでアクセスしてください。契約書生成システムのUIが表示されるはずです。
+
+## 🛠️ プロジェクト構造
+
+主要なファイルとディレクトリの役割は以下の通りです。
+
+```
+.
+├── /app
+│   └── page.tsx            # アプリケーションのエントリーポイント（メインページ）
+├── /components
+│   ├── /ui                 # shadcn/ui によって自動生成されるUIコンポーネント
+│   ├── ClauseNode.tsx      # 【コア】条項を再帰的に描画するコンポーネント
+│   └── ContractSheet.tsx   # 【コア】UI全体のレイアウトと状態を管理するコンポーネント
+├── /lib
+│   └── mock-contract.ts    # 【最重要】契約書の構造を定義するスキーマとモックデータ
+├── package.json            # プロジェクトの依存関係とスクリプト定義
+└── tsconfig.json           # TypeScriptのコンフィグレーション
+```
+
+## 技術スタック
+
+- **フレームワーク**: [Next.js](https://nextjs.org/ "null") (App Router)
+    
+- **言語**: [TypeScript](https://www.typescriptlang.org/ "null")
+    
+- **UIライブラリ**: [React](https://react.dev/ "null")
+    
+- **スタイリング**: [Tailwind CSS](https://tailwindcss.com/ "null")
+    
+- **UIコンポーネント**: [shadcn/ui](https://ui.shadcn.com/ "null")
+    
+
